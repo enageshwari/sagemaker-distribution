@@ -49,6 +49,7 @@ ENV MAMBA_USER=$NB_USER
 ENV USER=$NB_USER
 
 COPY aws-cli-public-key.asc /tmp/
+COPY extract_q_urls.py /tmp/
 
 RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends sudo gettext-base wget curl unzip git rsync build-essential openssh-client nano cron less mandoc jq ca-certificates gnupg && \
@@ -74,6 +75,24 @@ RUN apt-get update && apt-get upgrade -y && \
     Q_INSTALL_GLOBAL=true ./q/install.sh --no-confirm && \
     rm -rf q q.zip && \
     : && \
+    # Download Amazon Q artifacts for JupyterLab extension
+    mkdir -p /etc/amazon-q/artifacts/agentic-chat && \
+    # Download JSZip library
+    curl -L "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" -o "/etc/amazon-q/artifacts/agentic-chat/jszip.min.js" && \
+    # Download and extract Amazon Q server and client artifacts
+    MANIFEST_URL="https://aws-toolkit-language-servers.amazonaws.com/qAgenticChatServer/0/manifest.json" && \
+    FLARE_SERVER_VERSION="1.25.0" && \
+    curl -L "$MANIFEST_URL" -o "/tmp/manifest.json" && \
+    # Extract artifact URLs using helper script
+    eval $(python3 /tmp/extract_q_urls.py /tmp/manifest.json $FLARE_SERVER_VERSION) && \
+    # Download and extract servers.zip
+    curl -L "$SERVERS_URL" -o "/tmp/servers.zip" && \
+    unzip "/tmp/servers.zip" -d "/etc/amazon-q/artifacts/agentic-chat/servers" && \
+    # Download and extract clients.zip
+    curl -L "$CLIENTS_URL" -o "/tmp/clients.zip" && \
+    unzip "/tmp/clients.zip" -d "/etc/amazon-q/artifacts/agentic-chat/clients" && \
+    # Clean up temporary files
+    rm -f /tmp/manifest.json /tmp/servers.zip /tmp/clients.zip && \
     echo "source /usr/local/bin/_activate_current_env.sh" | tee --append /etc/profile && \
 # CodeEditor - create server, user data dirs
     mkdir -p /opt/amazon/sagemaker/sagemaker-code-editor-server-data /opt/amazon/sagemaker/sagemaker-code-editor-user-data \
