@@ -28,7 +28,7 @@ def extract_urls(manifest_file, version, platform='linux', arch='x64'):
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
-        print("Usage: extract_q_urls.py <manifest_file> <version>")
+        print("Usage: get_amazon_q_agentic_chat_artifacts.py <manifest_file> <version>")
         sys.exit(1)
     
     manifest_file, version = sys.argv[1], sys.argv[2]
