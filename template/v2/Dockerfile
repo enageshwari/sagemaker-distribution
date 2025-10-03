@@ -49,7 +49,7 @@ ENV MAMBA_USER=$NB_USER
 ENV USER=$NB_USER
 
 COPY aws-cli-public-key.asc /tmp/
-COPY ../assets/get_amazon_q_agentic_chat_artifacts.py /tmp/
+COPY get_amazon_q_agentic_chat_artifacts.py /tmp/
 
 RUN apt-get update && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends sudo gettext-base wget curl unzip git rsync build-essential openssh-client nano cron less mandoc jq ca-certificates gnupg && \
