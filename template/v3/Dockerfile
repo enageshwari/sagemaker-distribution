@@ -74,25 +74,6 @@ RUN apt-get update && apt-get upgrade -y && \
     unzip q.zip && \
     Q_INSTALL_GLOBAL=true ./q/install.sh --no-confirm && \
     rm -rf q q.zip && \
-    : && \
-    # Download Amazon Q artifacts for JupyterLab extension
-    mkdir -p /etc/amazon-q/artifacts/agentic-chat && \
-    # Download JSZip library
-    curl -L "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" -o "/etc/amazon-q/artifacts/agentic-chat/jszip.min.js" && \
-    # Download and extract Amazon Q server and client artifacts
-    MANIFEST_URL="https://aws-toolkit-language-servers.amazonaws.com/qAgenticChatServer/0/manifest.json" && \
-    FLARE_SERVER_VERSION="1.25.0" && \
-    curl -L "$MANIFEST_URL" -o "/tmp/manifest.json" && \
-    # Extract artifact URLs using helper script
-    eval $(python3 /tmp/get_amazon_q_agentic_chat_artifacts.py /tmp/manifest.json $FLARE_SERVER_VERSION) && \
-    # Download and extract servers.zip
-    curl -L "$SERVERS_URL" -o "/tmp/servers.zip" && \
-    unzip "/tmp/servers.zip" -d "/etc/amazon-q/artifacts/agentic-chat/servers" && \
-    # Download and extract clients.zip
-    curl -L "$CLIENTS_URL" -o "/tmp/clients.zip" && \
-    unzip "/tmp/clients.zip" -d "/etc/amazon-q/artifacts/agentic-chat/clients" && \
-    # Clean up temporary files
-    rm -f /tmp/manifest.json /tmp/servers.zip /tmp/clients.zip && \
     echo "source /usr/local/bin/_activate_current_env.sh" | tee --append /etc/profile && \
 # CodeEditor - create server, user data dirs
     mkdir -p /opt/amazon/sagemaker/sagemaker-code-editor-server-data /opt/amazon/sagemaker/sagemaker-code-editor-user-data \
@@ -140,6 +121,26 @@ RUN if [[ -z $ARG_BASED_ENV_IN_FILENAME ]] ; \
     find /opt/conda -name "yarn.lock" -type f -delete && \
     rm -rf /tmp/*.in && \
     sudo ln -s $(which python3) /usr/bin/python && \
+    # Download Amazon Q artifacts for JupyterLab extension
+    sudo mkdir -p /etc/amazon-q/artifacts/agentic-chat && \
+    # Download JSZip library
+    sudo curl -L "https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" -o "/etc/amazon-q/artifacts/agentic-chat/jszip.min.js" && \
+    # Download and extract Amazon Q server and client artifacts
+    MANIFEST_URL="https://aws-toolkit-language-servers.amazonaws.com/qAgenticChatServer/0/manifest.json" && \
+    FLARE_SERVER_VERSION="1.25.0" && \
+    curl -L "$MANIFEST_URL" -o "/tmp/manifest.json" && \
+    # Extract artifact URLs using helper script
+    ARTIFACT_URLS=$(python3 /tmp/get_amazon_q_agentic_chat_artifacts.py /tmp/manifest.json $FLARE_SERVER_VERSION) && \
+    if [ $? -ne 0 ] || [ -z "$ARTIFACT_URLS" ]; then echo "Failed to extract Amazon Q artifact URLs" && exit 1; fi && \
+    eval $ARTIFACT_URLS && \
+    # Download and extract servers.zip
+    curl -L "$SERVERS_URL" -o "/tmp/servers.zip" && \
+    sudo unzip "/tmp/servers.zip" -d "/etc/amazon-q/artifacts/agentic-chat/servers" && \
+    # Download and extract clients.zip
+    curl -L "$CLIENTS_URL" -o "/tmp/clients.zip" && \
+    sudo unzip "/tmp/clients.zip" -d "/etc/amazon-q/artifacts/agentic-chat/clients" && \
+    # Clean up temporary files
+    rm -f /tmp/manifest.json /tmp/servers.zip /tmp/clients.zip && \
     # Update npm version
     npm i -g npm && \
     # Enforce to use `conda-forge` as only channel, by removing `defaults`
