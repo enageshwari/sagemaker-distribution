@@ -1,0 +1,37 @@
+Traceback (most recent call last):
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/api/client.py", line 275, in _raise_for_status
+    response.raise_for_status()
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/requests/models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: http+docker://localhost/v1.44/build?q=False&nocache=False&rm=True&forcerm=False&pull=True&dockerfile=.%2FDockerfile&buildargs=%7B%22TAG_FOR_BASE_MICROMAMBA_IMAGE%22%3A+%22jammy%22%2C+%22ENV_IN_FILENAME%22%3A+%22cpu.env.in%22%2C+%22PINNED_ENV_IN_FILENAME%22%3A+%22cpu.pinned_env.in%22%2C+%22IMAGE_VERSION%22%3A+%222.11.0-cpu%22%7D
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/local/home/nagelan/ws/smd2/sagemaker-distribution/./src/main.py", line 513, in <module>
+    parse_args(get_arg_parser())
+  File "/local/home/nagelan/ws/smd2/sagemaker-distribution/./src/main.py", line 509, in parse_args
+    args.func(args)
+  File "/local/home/nagelan/ws/smd2/sagemaker-distribution/./src/main.py", line 203, in build_images
+    image_ids, image_versions = _build_local_images(target_version, args.target_ecr_repo, args.force, args.skip_tests)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/local/home/nagelan/ws/smd2/sagemaker-distribution/./src/main.py", line 278, in _build_local_images
+    image, log_gen = _docker_client.images.build(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/models/images.py", line 302, in build
+    for chunk in internal_stream:
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/utils/json_stream.py", line 60, in split_buffer
+    for data in stream_as_text(stream):
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/utils/json_stream.py", line 16, in stream_as_text
+    for data in stream:
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/api/client.py", line 374, in _stream_helper
+    yield self._result(response, json=decode)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/api/client.py", line 281, in _result
+    self._raise_for_status(response)
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/api/client.py", line 277, in _raise_for_status
+    raise create_api_error_from_http_exception(e) from e
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/errors.py", line 39, in create_api_error_from_http_exception
+    raise cls(e, response=response, explanation=explanation) from e
+docker.errors.APIError: 400 Client Error for http+docker://localhost/v1.44/build?q=False&nocache=False&rm=True&forcerm=False&pull=True&dockerfile=.%2FDockerfile&buildargs=%7B%22TAG_FOR_BASE_MICROMAMBA_IMAGE%22%3A+%22jammy%22%2C+%22ENV_IN_FILENAME%22%3A+%22cpu.env.in%22%2C+%22PINNED_ENV_IN_FILENAME%22%3A+%22cpu.pinned_env.in%22%2C+%22IMAGE_VERSION%22%3A+%222.11.0-cpu%22%7D: Bad Request ("dockerfile parse error on line 213: unknown instruction: cp (did you mean cmd?)")

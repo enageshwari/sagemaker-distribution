@@ -1,0 +1,155 @@
+Starting SMD build with artifacts at Sun Oct  5 02:38:34 UTC 2025
+Base version: 2.9.4
+Next version: 2.9.5
+Creating minor version artifacts...
+Building image...
+Step 1/48 : ARG TAG_FOR_BASE_MICROMAMBA_IMAGE
+
+Step 2/48 : FROM mambaorg/micromamba:$TAG_FOR_BASE_MICROMAMBA_IMAGE
+
+---> 2d032fb5e373
+Step 3/48 : ARG CUDA_MAJOR_MINOR_VERSION=''
+
+---> Using cache
+---> bbc6e6cdc8c1
+Step 4/48 : ARG ENV_IN_FILENAME
+
+---> Using cache
+---> 4ae37ccba633
+Step 5/48 : ARG PINNED_ENV_IN_FILENAME
+
+---> Using cache
+---> 90732aa1ab3a
+Step 6/48 : ARG ARG_BASED_ENV_IN_FILENAME
+
+---> Using cache
+---> aa9087f68c69
+Step 7/48 : ARG IMAGE_VERSION
+
+---> Using cache
+---> 1644b104b7de
+Step 8/48 : LABEL "org.amazon.sagemaker-distribution.image.version"=$IMAGE_VERSION
+
+---> Using cache
+---> dd53a536fc31
+Step 9/48 : ARG AMZN_BASE="/opt/amazon/sagemaker"
+
+---> Using cache
+---> 77ab66333774
+Step 10/48 : ARG DB_ROOT_DIR="/opt/db"
+
+---> Using cache
+---> 0d88db035883
+Step 11/48 : ARG DIRECTORY_TREE_STAGE_DIR="${AMZN_BASE}/dir-staging"
+
+---> Using cache
+---> 7171829a2b69
+Step 12/48 : ARG NB_USER="sagemaker-user"
+
+---> Using cache
+---> 3a5d3d85f381
+Step 13/48 : ARG NB_UID=1000
+
+---> Using cache
+---> 9ff2d0b92ecc
+Step 14/48 : ARG NB_GID=100
+
+---> Using cache
+---> 91d383da1f68
+Step 15/48 : ARG FIPS_VALIDATED_SSL=3.0.8
+
+---> Using cache
+---> 21979d81ec36
+Step 16/48 : ARG MIN_REQUIRED_MICROMAMBA_VERSION=1.5.11
+
+---> Using cache
+---> d4d966f2745e
+Step 17/48 : ENV SAGEMAKER_LOGGING_DIR="/var/log/sagemaker/"
+
+---> Using cache
+---> 7f186a71fcb0
+Step 18/48 : ENV STUDIO_LOGGING_DIR="/var/log/studio/"
+
+---> Using cache
+---> c5f227613a43
+Step 19/48 : ENV EDITOR="nano"
+
+---> Using cache
+---> 005eebe82291
+Step 20/48 : ENV IMAGE_VERSION=$IMAGE_VERSION
+
+---> Using cache
+---> a8a583090616
+Step 21/48 : ENV PINNED_MICROMAMBA_MINOR_VERSION="1.5.*"
+
+---> Using cache
+---> 49e044140848
+Step 22/48 : ENV SAGEMAKER_RECOVERY_MODE_HOME=/tmp/sagemaker-recovery-mode-home
+
+---> Using cache
+---> 0d9b50ba0383
+Step 23/48 : USER root
+
+---> Using cache
+---> fd532e3e478f
+Step 24/48 : RUN CURRENT_MICROMAMBA_VERSION=$(micromamba --version) &&     echo "Current micromamba version: $CURRENT_MICROMAMBA_VERSION" &&     if [[ "$CURRENT_MICROMAMBA_VERSION" == $PINNED_MICROMAMBA_MINOR_VERSION ]]; then         echo "Upgrading micromamba to the latest $PINNED_MICROMAMBA_MINOR_VERSION version..." &&         micromamba self-update -c conda-forge --version "$MIN_REQUIRED_MICROMAMBA_VERSION" &&         micromamba clean --all --yes --force-pkgs-dirs;     else         echo "Micromamba is already at version $CURRENT_MICROMAMBA_VERSION (outside $PINNED_MICROMAMBA_MINOR_VERSION). No upgrade performed.";     fi
+
+---> Using cache
+---> 92d093feabb6
+Step 25/48 : RUN usermod "--login=${NB_USER}" "--home=/home/${NB_USER}" --move-home "-u ${NB_UID}" "${MAMBA_USER}" &&     groupmod "--new-name=${NB_USER}" --non-unique "-g ${NB_GID}" "${MAMBA_USER}" &&     echo "${NB_USER}" > "/etc/arg_mamba_user" &&     :
+
+---> Using cache
+---> 4e59a0287530
+Step 26/48 : ENV MAMBA_USER=$NB_USER
+
+---> Using cache
+---> f0fc7b0aaabb
+Step 27/48 : ENV USER=$NB_USER
+
+---> Using cache
+---> 71445978c531
+Step 28/48 : COPY aws-cli-public-key.asc /tmp/
+
+---> Using cache
+---> 63cb8e099495
+Step 29/48 : COPY get_amazon_q_agentic_chat_artifacts.py /tmp/
+
+---> Using cache
+---> ee0d510c1422
+Step 30/48 : RUN apt-get update && apt-get upgrade -y &&     apt-get install -y --no-install-recommends sudo gettext-base wget curl unzip git rsync build-essential openssh-client nano cron less mandoc jq ca-certificates gnupg &&     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata krb5-user libkrb5-dev libsasl2-dev libsasl2-modules &&     chmod g+w /etc/passwd &&     echo "ALL    ALL=(ALL)    NOPASSWD:    ALL" >> /etc/sudoers &&     touch /etc/krb5.conf.lock && chown ${NB_USER}:${MAMBA_USER} /etc/krb5.conf* &&     curl -O "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" &&     curl -O "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip.sig" &&     gpg --import /tmp/aws-cli-public-key.asc &&     gpg --trust-model always --verify awscli-exe-linux-x86_64.zip.sig awscli-exe-linux-x86_64.zip ||        (echo "GPG verification failed" && exit 1) &&     unzip awscli-exe-linux-x86_64.zip &&     sudo ./aws/install &&     rm -rf aws awscli-exe-linux-x86_64.zip awscli-exe-linux-x86_64.zip.sig aws-cli-public-key.asc &&     : &&     curl --proto '=https' --tlsv1.2 -sSf "https://desktop-release.q.us-east-1.amazonaws.com/latest/q-x86_64-linux.zip" -o "q.zip" &&     unzip q.zip &&     Q_INSTALL_GLOBAL=true ./q/install.sh --no-confirm &&     rm -rf q q.zip &&     echo "source /usr/local/bin/_activate_current_env.sh" | tee --append /etc/profile &&     mkdir -p /opt/amazon/sagemaker/sagemaker-code-editor-server-data /opt/amazon/sagemaker/sagemaker-code-editor-user-data     && chown $MAMBA_USER:$MAMBA_USER /opt/amazon/sagemaker/sagemaker-code-editor-server-data /opt/amazon/sagemaker/sagemaker-code-editor-user-data &&     mkdir -p /opt/amazon/sagemaker/user-data     && chown $MAMBA_USER:$MAMBA_USER /opt/amazon/sagemaker/user-data &&     mkdir -p ${DIRECTORY_TREE_STAGE_DIR}
+
+---> Using cache
+---> f35dc4ecdeb1
+Step 31/48 : COPY dirs/ ${DIRECTORY_TREE_STAGE_DIR}/
+
+---> Using cache
+---> afe296529869
+Step 32/48 : RUN rsync -a ${DIRECTORY_TREE_STAGE_DIR}/ / &&     rm -rf ${DIRECTORY_TREE_STAGE_DIR} &&     mkdir -p /etc/code-editor/extensions &&     while IFS= read -r url || [ -n "$url" ]; do         echo "Downloading extension from ${url}..." &&         wget --no-check-certificate -P /etc/code-editor/extensions "${url}";     done < /etc/code-editor/extensions.txt
+
+---> Using cache
+---> 8e509af39b15
+Step 33/48 : USER $MAMBA_USER
+
+---> Using cache
+---> 6d2bcb9fcbb5
+Step 34/48 : COPY --chown=$MAMBA_USER:$MAMBA_USER $ENV_IN_FILENAME *.in /tmp/
+
+---> Using cache
+---> dfca7c65735e
+Step 35/48 : COPY --chown=$MAMBA_USER:$MAMBA_USER $PINNED_ENV_IN_FILENAME *.in /tmp/
+
+Traceback (most recent call last):
+  File "/local/home/nagelan/ws/smd2/sagemaker-distribution/./src/main.py", line 513, in <module>
+    parse_args(get_arg_parser())
+  File "/local/home/nagelan/ws/smd2/sagemaker-distribution/./src/main.py", line 509, in parse_args
+    args.func(args)
+  File "/local/home/nagelan/ws/smd2/sagemaker-distribution/./src/main.py", line 203, in build_images
+    image_ids, image_versions = _build_local_images(target_version, args.target_ecr_repo, args.force, args.skip_tests)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/local/home/nagelan/ws/smd2/sagemaker-distribution/./src/main.py", line 278, in _build_local_images
+    image, log_gen = _docker_client.images.build(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/nagelan/miniconda3/envs/sagemaker-distribution-fixed/lib/python3.11/site-packages/docker/models/images.py", line 304, in build
+    raise BuildError(chunk['error'], result_stream)
+docker.errors.BuildError: COPY failed: file not found in build context or excluded by .dockerignore: stat cpu.pinned_env.in: file does not exist
+Build completed at Sun Oct  5 02:38:34 UTC 2025

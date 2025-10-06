@@ -114,8 +114,8 @@ RUN if [[ -z $ARG_BASED_ENV_IN_FILENAME ]] ; \
     JUPYTERLAB_VERSION=$(grep "^conda-forge::jupyterlab\[" /tmp/$ENV_IN_FILENAME) && \
     SAGEMAKER_JUPYTERLAB_VERSION=$(grep "^conda-forge::sagemaker-jupyterlab-extension" /tmp/$ENV_IN_FILENAME) && \
     echo "Installing in sagemaker-recovery-mode micromamba environment: $JUPYTERLAB_VERSION $SAGEMAKER_JUPYTERLAB_VERSION" && \
-    micromamba create --prefix /opt/conda/envs/sagemaker-recovery-mode && \
-    micromamba install --prefix /opt/conda/envs/sagemaker-recovery-mode -y $JUPYTERLAB_VERSION $SAGEMAKER_JUPYTERLAB_VERSION $SUPERVISOR_VERSION && \
+    micromamba create -n sagemaker-recovery-mode && \
+    micromamba install -n sagemaker-recovery-mode -y $JUPYTERLAB_VERSION $SAGEMAKER_JUPYTERLAB_VERSION $SUPERVISOR_VERSION && \
     micromamba clean --all --yes --force-pkgs-dirs && \
     rm -rf /opt/conda/etc/conda/test-files/ && \
     find /opt/conda -name "yarn.lock" -type f -delete && \
@@ -141,8 +141,6 @@ RUN if [[ -z $ARG_BASED_ENV_IN_FILENAME ]] ; \
     sudo unzip "/tmp/clients.zip" -d "/etc/amazon-q/artifacts/agentic-chat/clients" && \
     # Clean up temporary files
     rm -f /tmp/manifest.json /tmp/servers.zip /tmp/clients.zip && \
-    # Fix ownership for JupyterLab access
-    sudo chown -R $MAMBA_USER:$MAMBA_USER /etc/amazon-q/artifacts/ && \
     # Update npm version
     npm i -g npm && \
     # Enforce to use `conda-forge` as only channel, by removing `defaults`
@@ -208,9 +206,7 @@ RUN if [[ -z $ARG_BASED_ENV_IN_FILENAME ]] ; \
     sed -i 's="Spark"="SparkMagic Spark"=g'  /opt/conda/share/jupyter/kernels/sparkkernel/kernel.json && \
     sed -i 's="PySpark"="SparkMagic PySpark"=g'  /opt/conda/share/jupyter/kernels/pysparkkernel/kernel.json && \
     # Configure RTC - disable jupyter_collaboration by default
-    jupyter labextension disable @jupyter/collaboration-extension && \
-    # Disable docprovider-extension for v3 and above images
-    jupyter labextension disable @jupyter/docprovider-extension
+    jupyter labextension disable @jupyter/collaboration-extension
 
 # Patch glue kernels to use kernel wrapper
 COPY patch_glue_pyspark.json /opt/conda/share/jupyter/kernels/glue_pyspark/kernel.json
@@ -247,7 +243,7 @@ RUN mkdir -p $SAGEMAKER_LOGGING_DIR && \
 
 # Explicitly disable BuildKit for SM Studio Docker functionality
 ENV DOCKER_BUILDKIT=0
-ENV PATH="/etc/sagemaker-inference-server:/opt/conda/bin:/opt/conda/condabin:$PATH"
+ENV PATH="/opt/conda/bin:/opt/conda/condabin:$PATH"
 WORKDIR "/home/${NB_USER}"
 ENV SHELL=/bin/bash
 ENV OPENSSL_MODULES=/opt/conda/lib64/ossl-modules/

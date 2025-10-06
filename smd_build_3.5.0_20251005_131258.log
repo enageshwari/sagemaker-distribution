@@ -1,0 +1,6 @@
+Starting SMD build from 2.9.4 to 2.9.5 at Sun Oct  5 13:12:58 UTC 2025
+Successfully built an image <Image: ''> with id: sha256:6bb5b9afebfdfbd52fdf6d2d0f4d570b44c8070b8e414ed3229c16b2f58b91fd, image type: cpu
+Write env.out file successfully for image sha256:6bb5b9afebfdfbd52fdf6d2d0f4d570b44c8070b8e414ed3229c16b2f58b91fd, image type: cpu
+Generated CHANGELOG-cpu file successfully for image sha256:6bb5b9afebfdfbd52fdf6d2d0f4d570b44c8070b8e414ed3229c16b2f58b91fd
+Will skip tests.
+Build completed successfully at Sun Oct  5 13:12:58 UTC 2025

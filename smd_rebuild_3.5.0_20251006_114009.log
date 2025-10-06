@@ -1,0 +1,6 @@
+Starting SMD rebuild 3.5.0 with ownership fix at Mon Oct  6 11:40:09 UTC 2025
+Successfully built an image <Image: 'localhost/sagemaker-distribution:3.5.0-cpu'> with id: sha256:6bb5b9afebfdfbd52fdf6d2d0f4d570b44c8070b8e414ed3229c16b2f58b91fd, image type: cpu
+Write env.out file successfully for image sha256:6bb5b9afebfdfbd52fdf6d2d0f4d570b44c8070b8e414ed3229c16b2f58b91fd, image type: cpu
+Generated CHANGELOG-cpu file successfully for image sha256:6bb5b9afebfdfbd52fdf6d2d0f4d570b44c8070b8e414ed3229c16b2f58b91fd
+Will skip tests.
+Rebuild completed successfully at Mon Oct  6 11:40:09 UTC 2025

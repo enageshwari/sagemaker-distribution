@@ -141,8 +141,6 @@ RUN if [[ -z $ARG_BASED_ENV_IN_FILENAME ]] ; \
     sudo unzip "/tmp/clients.zip" -d "/etc/amazon-q/artifacts/agentic-chat/clients" && \
     # Clean up temporary files
     rm -f /tmp/manifest.json /tmp/servers.zip /tmp/clients.zip && \
-    # Fix ownership for JupyterLab access
-    sudo chown -R $MAMBA_USER:$MAMBA_USER /etc/amazon-q/artifacts/ && \
     # Update npm version
     npm i -g npm && \
     # Enforce to use `conda-forge` as only channel, by removing `defaults`
